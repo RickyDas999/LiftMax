@@ -26,6 +26,7 @@ struct WorkoutSessionView: View {
                         VStack(alignment: .leading, spacing: 20) {
                             sessionHeader(session: session, day: day)
                             currentExerciseCard(exercise: currentExercise, day: day)
+                            restTimerCard(currentExercise: currentExercise)
                             exerciseQueue(day: day, currentIndex: session.currentExerciseIndex)
                         }
                         .padding(20)
@@ -50,6 +51,12 @@ struct WorkoutSessionView: View {
                                 reps: reps,
                                 isWarmup: isWarmup
                             )
+                            if !isWarmup {
+                                appModel.startRestTimer(
+                                    exerciseID: currentExercise.id,
+                                    durationSeconds: currentExercise.restSeconds
+                                )
+                            }
                         }
                     }
                 } else {
@@ -160,6 +167,81 @@ struct WorkoutSessionView: View {
         .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
+    private func restTimerCard(currentExercise: Exercise) -> some View {
+        let isActiveExerciseTimer = appModel.activeRestTimer?.exerciseID == currentExercise.id
+
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Rest Timer")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.white)
+
+                Spacer()
+
+                if isActiveExerciseTimer {
+                    Text("Live")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Color.black.opacity(0.82))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(red: 0.99, green: 0.74, blue: 0.31), in: Capsule())
+                }
+            }
+
+            Text("Use \(currentExercise.restSeconds) seconds between working sets for \(currentExercise.name).")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.72))
+
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                let countdown = countdownState(for: currentExercise, at: context.date)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(countdown.label)
+                        .font(.system(size: 42, weight: .black, design: .rounded))
+                        .foregroundStyle(countdown.isFinished ? Color.green : .white)
+
+                    Text(countdown.detail)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.68))
+                }
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    appModel.startRestTimer(exerciseID: currentExercise.id, durationSeconds: currentExercise.restSeconds)
+                } label: {
+                    Label("Start", systemImage: "play.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color(red: 0.43, green: 0.58, blue: 0.95))
+
+                Button {
+                    appModel.resetRestTimer()
+                } label: {
+                    Label("Reset", systemImage: "arrow.clockwise")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.white)
+                .disabled(appModel.activeRestTimer?.exerciseID != currentExercise.id)
+
+                Button {
+                    appModel.clearRestTimer()
+                } label: {
+                    Label("Skip", systemImage: "forward.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.white)
+                .disabled(appModel.activeRestTimer == nil)
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
     private func exerciseQueue(day: WorkoutDay, currentIndex: Int) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Exercise Queue")
@@ -257,6 +339,37 @@ struct WorkoutSessionView: View {
         }
 
         return .white.opacity(0.06)
+    }
+
+    private func countdownState(for exercise: Exercise, at date: Date) -> (label: String, detail: String, isFinished: Bool) {
+        guard let activeRestTimer = appModel.activeRestTimer, activeRestTimer.exerciseID == exercise.id else {
+            return (
+                label: timeText(seconds: exercise.restSeconds),
+                detail: "Default rest target for this exercise.",
+                isFinished: false
+            )
+        }
+
+        let remainingSeconds = max(0, Int(activeRestTimer.endDate.timeIntervalSince(date)))
+        if remainingSeconds == 0 {
+            return (
+                label: "Ready",
+                detail: "Rest complete. Go when the station opens.",
+                isFinished: true
+            )
+        }
+
+        return (
+            label: timeText(seconds: remainingSeconds),
+            detail: "Counting down from \(activeRestTimer.durationSeconds) seconds.",
+            isFinished: false
+        )
+    }
+
+    private func timeText(seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        return String(format: "%01d:%02d", minutes, remainingSeconds)
     }
 
     private func elapsedText(from startDate: Date, to currentDate: Date) -> String {

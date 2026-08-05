@@ -6,6 +6,7 @@ final class AppModel {
     var workoutDays: [WorkoutDay]
     var saveErrorMessage: String?
     var activeWorkoutSession: ActiveWorkoutSession?
+    var activeRestTimer: ActiveRestTimer?
 
     @ObservationIgnored private let storageURL: URL
 
@@ -120,6 +121,27 @@ final class AppModel {
         save()
     }
 
+    func startRestTimer(exerciseID: Exercise.ID, durationSeconds: Int) {
+        activeRestTimer = ActiveRestTimer(
+            id: UUID(),
+            exerciseID: exerciseID,
+            startedAt: .now,
+            durationSeconds: durationSeconds
+        )
+    }
+
+    func resetRestTimer() {
+        guard let activeRestTimer else {
+            return
+        }
+
+        startRestTimer(exerciseID: activeRestTimer.exerciseID, durationSeconds: activeRestTimer.durationSeconds)
+    }
+
+    func clearRestTimer() {
+        activeRestTimer = nil
+    }
+
     func startWorkoutSession(dayID: WorkoutDay.ID) {
         guard let day = workoutDay(withID: dayID), !day.exercises.isEmpty else {
             return
@@ -135,6 +157,7 @@ final class AppModel {
 
     func endWorkoutSession() {
         activeWorkoutSession = nil
+        activeRestTimer = nil
     }
 
     func goToExercise(index: Int) {

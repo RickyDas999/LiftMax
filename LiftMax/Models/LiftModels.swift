@@ -229,6 +229,17 @@ struct ActiveWorkoutSession: Identifiable, Hashable {
     var currentExerciseIndex: Int
 }
 
+struct ActiveRestTimer: Identifiable, Hashable {
+    let id: UUID
+    let exerciseID: Exercise.ID
+    let startedAt: Date
+    let durationSeconds: Int
+
+    var endDate: Date {
+        startedAt.addingTimeInterval(TimeInterval(durationSeconds))
+    }
+}
+
 extension ClosedRange<Int> where Bound == Int {
     var displayText: String {
         "\(lowerBound)-\(upperBound)"

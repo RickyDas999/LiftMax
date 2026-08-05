@@ -6,6 +6,7 @@ struct Exercise: Identifiable, Codable, Hashable {
     var category: ExerciseCategory
     var targetRepRange: ClosedRange<Int>
     var restSeconds: Int
+    var targetWorkingSets: Int
     var sets: [ExerciseSet]
 
     var lastPerformanceSummary: String {
@@ -113,6 +114,56 @@ struct Exercise: Identifiable, Codable, Hashable {
         }
 
         return currentWeight + 5
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case category
+        case targetRepRange
+        case restSeconds
+        case targetWorkingSets
+        case sets
+    }
+
+    init(
+        id: UUID,
+        name: String,
+        category: ExerciseCategory,
+        targetRepRange: ClosedRange<Int>,
+        restSeconds: Int,
+        targetWorkingSets: Int,
+        sets: [ExerciseSet]
+    ) {
+        self.id = id
+        self.name = name
+        self.category = category
+        self.targetRepRange = targetRepRange
+        self.restSeconds = restSeconds
+        self.targetWorkingSets = targetWorkingSets
+        self.sets = sets
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        category = try container.decode(ExerciseCategory.self, forKey: .category)
+        targetRepRange = try container.decode(ClosedRange<Int>.self, forKey: .targetRepRange)
+        restSeconds = try container.decode(Int.self, forKey: .restSeconds)
+        targetWorkingSets = try container.decodeIfPresent(Int.self, forKey: .targetWorkingSets) ?? 3
+        sets = try container.decode([ExerciseSet].self, forKey: .sets)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(category, forKey: .category)
+        try container.encode(targetRepRange, forKey: .targetRepRange)
+        try container.encode(restSeconds, forKey: .restSeconds)
+        try container.encode(targetWorkingSets, forKey: .targetWorkingSets)
+        try container.encode(sets, forKey: .sets)
     }
 }
 

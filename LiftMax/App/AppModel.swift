@@ -64,6 +64,27 @@ final class AppModel {
         return day.exercises[activeWorkoutSession.currentExerciseIndex]
     }
 
+    func sessionWorkingSets(for exerciseID: Exercise.ID) -> [ExerciseSet] {
+        guard let activeWorkoutSession else {
+            return []
+        }
+
+        return workoutDays
+            .flatMap(\.exercises)
+            .first(where: { $0.id == exerciseID })?
+            .sets
+            .filter { !$0.isWarmup && $0.completedAt >= activeWorkoutSession.startedAt }
+            .sorted(by: { $0.completedAt > $1.completedAt }) ?? []
+    }
+
+    func isExerciseCompleteInSession(_ exerciseID: Exercise.ID) -> Bool {
+        guard let exercise = workoutDays.flatMap(\.exercises).first(where: { $0.id == exerciseID }) else {
+            return false
+        }
+
+        return sessionWorkingSets(for: exerciseID).count >= exercise.targetWorkingSets
+    }
+
     func workoutDay(withID id: WorkoutDay.ID) -> WorkoutDay? {
         workoutDays.first(where: { $0.id == id })
     }
@@ -169,7 +190,8 @@ final class AppModel {
         name: String,
         category: ExerciseCategory,
         targetRepRange: ClosedRange<Int>,
-        restSeconds: Int
+        restSeconds: Int,
+        targetWorkingSets: Int
     ) {
         guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
             return
@@ -181,10 +203,36 @@ final class AppModel {
             category: category,
             targetRepRange: targetRepRange,
             restSeconds: restSeconds,
+            targetWorkingSets: targetWorkingSets,
             sets: []
         )
 
         workoutDays[dayIndex].exercises.append(newExercise)
+        save()
+    }
+
+    func updateExercise(
+        dayID: WorkoutDay.ID,
+        exerciseID: Exercise.ID,
+        name: String,
+        category: ExerciseCategory,
+        targetRepRange: ClosedRange<Int>,
+        restSeconds: Int,
+        targetWorkingSets: Int
+    ) {
+        guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
+            return
+        }
+
+        guard let exerciseIndex = workoutDays[dayIndex].exercises.firstIndex(where: { $0.id == exerciseID }) else {
+            return
+        }
+
+        workoutDays[dayIndex].exercises[exerciseIndex].name = name
+        workoutDays[dayIndex].exercises[exerciseIndex].category = category
+        workoutDays[dayIndex].exercises[exerciseIndex].targetRepRange = targetRepRange
+        workoutDays[dayIndex].exercises[exerciseIndex].restSeconds = restSeconds
+        workoutDays[dayIndex].exercises[exerciseIndex].targetWorkingSets = targetWorkingSets
         save()
     }
 
@@ -289,6 +337,7 @@ enum SampleData {
                     category: .chest,
                     targetRepRange: 5...8,
                     restSeconds: 150,
+                    targetWorkingSets: 2,
                     sets: [
                         ExerciseSet(id: UUID(), weight: 70, reps: 8, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 7)),
                         ExerciseSet(id: UUID(), weight: 75, reps: 7, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 3)),
@@ -301,6 +350,7 @@ enum SampleData {
                     category: .shoulders,
                     targetRepRange: 6...10,
                     restSeconds: 120,
+                    targetWorkingSets: 3,
                     sets: [
                         ExerciseSet(id: UUID(), weight: 50, reps: 10, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 5)),
                         ExerciseSet(id: UUID(), weight: 55, reps: 8, isWarmup: false, completedAt: .now.addingTimeInterval(-86400))
@@ -312,6 +362,7 @@ enum SampleData {
                     category: .shoulders,
                     targetRepRange: 12...15,
                     restSeconds: 75,
+                    targetWorkingSets: 3,
                     sets: [
                         ExerciseSet(id: UUID(), weight: 20, reps: 15, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 2))
                     ]
@@ -329,6 +380,7 @@ enum SampleData {
                     category: .back,
                     targetRepRange: 5...8,
                     restSeconds: 150,
+                    targetWorkingSets: 2,
                     sets: [
                         ExerciseSet(id: UUID(), weight: 25, reps: 8, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 4)),
                         ExerciseSet(id: UUID(), weight: 35, reps: 6, isWarmup: false, completedAt: .now.addingTimeInterval(-86400))
@@ -340,6 +392,7 @@ enum SampleData {
                     category: .back,
                     targetRepRange: 8...12,
                     restSeconds: 120,
+                    targetWorkingSets: 3,
                     sets: [
                         ExerciseSet(id: UUID(), weight: 80, reps: 12, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 6)),
                         ExerciseSet(id: UUID(), weight: 90, reps: 10, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 2))
@@ -358,6 +411,7 @@ enum SampleData {
                     category: .legs,
                     targetRepRange: 8...10,
                     restSeconds: 180,
+                    targetWorkingSets: 3,
                     sets: [
                         ExerciseSet(id: UUID(), weight: 225, reps: 10, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 4)),
                         ExerciseSet(id: UUID(), weight: 245, reps: 8, isWarmup: false, completedAt: .now.addingTimeInterval(-86400))
@@ -369,6 +423,7 @@ enum SampleData {
                     category: .legs,
                     targetRepRange: 6...8,
                     restSeconds: 180,
+                    targetWorkingSets: 3,
                     sets: [
                         ExerciseSet(id: UUID(), weight: 225, reps: 8, isWarmup: false, completedAt: .now.addingTimeInterval(-86400 * 5)),
                         ExerciseSet(id: UUID(), weight: 235, reps: 8, isWarmup: false, completedAt: .now.addingTimeInterval(-86400))

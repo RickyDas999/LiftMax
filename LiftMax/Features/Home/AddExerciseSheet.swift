@@ -5,12 +5,14 @@ struct AddExerciseSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let dayID: WorkoutDay.ID
+    let existingExercise: Exercise?
 
     @State private var name = ""
     @State private var category = ExerciseCategory.chest
     @State private var minReps = 8
     @State private var maxReps = 12
     @State private var restSeconds = 120
+    @State private var targetWorkingSets = 3
 
     var body: some View {
         NavigationStack {
@@ -27,10 +29,11 @@ struct AddExerciseSheet: View {
                 Section("Targets") {
                     Stepper("Min reps: \(minReps)", value: $minReps, in: 1...30)
                     Stepper("Max reps: \(max(maxReps, minReps))", value: $maxReps, in: minReps...30)
+                    Stepper("Working sets: \(targetWorkingSets)", value: $targetWorkingSets, in: 1...8)
                     Stepper("Rest: \(restSeconds) sec", value: $restSeconds, in: 30...300, step: 15)
                 }
             }
-            .navigationTitle("Add Exercise")
+            .navigationTitle(existingExercise == nil ? "Add Exercise" : "Edit Exercise")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -41,13 +44,27 @@ struct AddExerciseSheet: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        appModel.addExercise(
-                            dayID: dayID,
-                            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-                            category: category,
-                            targetRepRange: minReps...maxReps,
-                            restSeconds: restSeconds
-                        )
+                        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if let existingExercise {
+                            appModel.updateExercise(
+                                dayID: dayID,
+                                exerciseID: existingExercise.id,
+                                name: trimmedName,
+                                category: category,
+                                targetRepRange: minReps...maxReps,
+                                restSeconds: restSeconds,
+                                targetWorkingSets: targetWorkingSets
+                            )
+                        } else {
+                            appModel.addExercise(
+                                dayID: dayID,
+                                name: trimmedName,
+                                category: category,
+                                targetRepRange: minReps...maxReps,
+                                restSeconds: restSeconds,
+                                targetWorkingSets: targetWorkingSets
+                            )
+                        }
                         dismiss()
                     }
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -57,6 +74,18 @@ struct AddExerciseSheet: View {
                 if maxReps < newValue {
                     maxReps = newValue
                 }
+            }
+            .onAppear {
+                guard let existingExercise else {
+                    return
+                }
+
+                name = existingExercise.name
+                category = existingExercise.category
+                minReps = existingExercise.targetRepRange.lowerBound
+                maxReps = existingExercise.targetRepRange.upperBound
+                restSeconds = existingExercise.restSeconds
+                targetWorkingSets = existingExercise.targetWorkingSets
             }
         }
     }

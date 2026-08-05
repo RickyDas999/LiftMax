@@ -103,6 +103,7 @@ private struct WorkoutDayCustomizationView: View {
     let dayID: WorkoutDay.ID
 
     @State private var showingAddExerciseSheet = false
+    @State private var editingExercise: Exercise?
     @State private var exercisePendingDeletion: Exercise?
 
     private var day: WorkoutDay? {
@@ -138,12 +139,22 @@ private struct WorkoutDayCustomizationView: View {
                                         Text(exercise.name)
                                             .font(.headline)
 
-                                        Text("\(exercise.category.rawValue) • \(exercise.targetRepRange.displayText) reps • Rest \(exercise.restSeconds) sec")
+                                        Text("\(exercise.category.rawValue) • \(exercise.targetRepRange.displayText) reps • \(exercise.targetWorkingSets) working sets • Rest \(exercise.restSeconds) sec")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
 
                                     Spacer()
+
+                                    Button {
+                                        editingExercise = exercise
+                                    } label: {
+                                        Image(systemName: "pencil")
+                                            .foregroundStyle(.blue)
+                                            .padding(8)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel("Edit \(exercise.name)")
 
                                     Button {
                                         exercisePendingDeletion = exercise
@@ -170,7 +181,11 @@ private struct WorkoutDayCustomizationView: View {
                     }
                 }
                 .sheet(isPresented: $showingAddExerciseSheet) {
-                    AddExerciseSheet(dayID: day.id)
+                    AddExerciseSheet(dayID: day.id, existingExercise: nil)
+                        .environment(appModel)
+                }
+                .sheet(item: $editingExercise) { exercise in
+                    AddExerciseSheet(dayID: day.id, existingExercise: exercise)
                         .environment(appModel)
                 }
                 .confirmationDialog(

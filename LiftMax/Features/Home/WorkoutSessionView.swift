@@ -82,7 +82,11 @@ struct WorkoutSessionView: View {
     }
 
     private func currentExerciseCard(exercise: Exercise, day: WorkoutDay) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let sessionSets = appModel.sessionWorkingSets(for: exercise.id)
+        let isComplete = sessionSets.count >= exercise.targetWorkingSets
+        let sessionRepTotal = sessionSets.map(\.reps).reduce(0, +)
+
+        return VStack(alignment: .leading, spacing: 16) {
             Text("Current Exercise")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.white.opacity(0.62))
@@ -96,39 +100,59 @@ struct WorkoutSessionView: View {
                 .foregroundStyle(.white.opacity(0.74))
 
             HStack {
+                sessionBadge(title: "Working Sets", value: "\(sessionSets.count) / \(exercise.targetWorkingSets)")
+                sessionBadge(title: "Session Reps", value: "\(sessionRepTotal)")
+            }
+
+            HStack {
                 sessionBadge(title: "Last", value: exercise.lastPerformanceSummary)
                 sessionBadge(title: "Best", value: exercise.personalBestSummary)
             }
 
-            HStack(spacing: 12) {
-                Button {
-                    appModel.moveToPreviousExercise()
-                } label: {
-                    Label("Previous", systemImage: "arrow.left")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .tint(.white)
-                .disabled(appModel.activeWorkoutSession?.currentExerciseIndex == 0)
+            Button {
+                showingAddSetSheet = true
+            } label: {
+                Label("Log Set", systemImage: "plus.circle.fill")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(isComplete ? Color.green : Color(red: 0.36, green: 0.81, blue: 0.68))
 
-                Button {
-                    showingAddSetSheet = true
-                } label: {
-                    Label("Log Set", systemImage: "plus.circle.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color(red: 0.36, green: 0.81, blue: 0.68))
+            if !sessionSets.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Logged This Session")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.62))
 
-                Button {
-                    appModel.advanceToNextExercise()
-                } label: {
-                    Label("Next", systemImage: "arrow.right")
-                        .frame(maxWidth: .infinity)
+                    ForEach(sessionSets) { set in
+                        HStack {
+                            Text("\(set.weight.formattedWeight) lb x \(set.reps)")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.white)
+
+                            Spacer()
+
+                            Text(set.completedAt.formatted(date: .omitted, time: .shortened))
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.62))
+                        }
+                    }
                 }
-                .buttonStyle(.bordered)
-                .tint(.white)
-                .disabled(appModel.activeWorkoutSession?.currentExerciseIndex == day.exercises.count - 1)
+            }
+
+            if isComplete {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Target working sets completed")
+                        .fontWeight(.bold)
+                }
+                .foregroundStyle(Color(red: 0.36, green: 0.90, blue: 0.62))
+            } else {
+                Text("Select another exercise from the queue whenever the gym setup changes.")
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.72))
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(20)
@@ -169,7 +193,14 @@ struct WorkoutSessionView: View {
 
                         Spacer()
 
-                        if index == currentIndex {
+                        if appModel.isExerciseCompleteInSession(exercise.id) {
+                            Text("Done")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Color.black.opacity(0.82))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.green, in: Capsule())
+                        } else if index == currentIndex {
                             Text("Live")
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(Color.black.opacity(0.82))
@@ -179,7 +210,7 @@ struct WorkoutSessionView: View {
                         }
                     }
                     .padding(16)
-                    .background(.white.opacity(index == currentIndex ? 0.12 : 0.06), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .background(queueBackground(for: exercise, index: index, currentIndex: currentIndex), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }
@@ -214,6 +245,18 @@ struct WorkoutSessionView: View {
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func queueBackground(for exercise: Exercise, index: Int, currentIndex: Int) -> Color {
+        if appModel.isExerciseCompleteInSession(exercise.id) {
+            return Color.green.opacity(0.22)
+        }
+
+        if index == currentIndex {
+            return .white.opacity(0.12)
+        }
+
+        return .white.opacity(0.06)
     }
 
     private func elapsedText(from startDate: Date, to currentDate: Date) -> String {

@@ -15,6 +15,7 @@ struct WorkoutDayDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         summaryCard(for: day)
+                        sessionCallout(for: day)
 
                         if day.exercises.isEmpty {
                             emptyState
@@ -34,6 +35,15 @@ struct WorkoutDayDetailView: View {
                 .background(backgroundGradient)
                 .navigationTitle(day.title)
                 .navigationBarTitleDisplayMode(.inline)
+                .fullScreenCover(
+                    item: Binding(
+                        get: { appModel.activeWorkoutSession },
+                        set: { appModel.activeWorkoutSession = $0 }
+                    )
+                ) { _ in
+                    WorkoutSessionView()
+                        .environment(appModel)
+                }
             } else {
                 ContentUnavailableView("Workout not found", systemImage: "exclamationmark.triangle")
             }
@@ -125,6 +135,36 @@ struct WorkoutDayDetailView: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private func sessionCallout(for day: WorkoutDay) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Session Mode")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.white)
+
+            Text("Use a focused logging flow during training with a current exercise target and quick set entry.")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.74))
+
+            Button {
+                appModel.startWorkoutSession(dayID: day.id)
+            } label: {
+                HStack {
+                    Image(systemName: "play.fill")
+                    Text("Start Workout")
+                        .fontWeight(.bold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color(red: 0.97, green: 0.52, blue: 0.28))
+            .disabled(day.exercises.isEmpty)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 

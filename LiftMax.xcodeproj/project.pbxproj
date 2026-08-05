@@ -16,6 +16,7 @@
 		A10000212D00000100000001 /* ExerciseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000202D00000100000001 /* ExerciseDetailView.swift */; };
 		A10000232D00000100000001 /* SplitEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000222D00000100000001 /* SplitEditorView.swift */; };
 		A10000252D00000100000001 /* AddExerciseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000242D00000100000001 /* AddExerciseSheet.swift */; };
+		A10000272D00000100000001 /* WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000262D00000100000001 /* WorkoutSessionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		A10000202D00000100000001 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetailView.swift; sourceTree = "<group>"; };
 		A10000222D00000100000001 /* SplitEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitEditorView.swift; sourceTree = "<group>"; };
 		A10000242D00000100000001 /* AddExerciseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExerciseSheet.swift; sourceTree = "<group>"; };
+		A10000262D00000100000001 /* WorkoutSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 				A10000202D00000100000001 /* ExerciseDetailView.swift */,
 				A10000222D00000100000001 /* SplitEditorView.swift */,
 				A10000242D00000100000001 /* AddExerciseSheet.swift */,
+				A10000262D00000100000001 /* WorkoutSessionView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -182,6 +185,7 @@
 				A10000212D00000100000001 /* ExerciseDetailView.swift in Sources */,
 				A10000232D00000100000001 /* SplitEditorView.swift in Sources */,
 				A10000252D00000100000001 /* AddExerciseSheet.swift in Sources */,
+				A10000272D00000100000001 /* WorkoutSessionView.swift in Sources */,
 				A100001C2D00000100000001 /* LiftModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

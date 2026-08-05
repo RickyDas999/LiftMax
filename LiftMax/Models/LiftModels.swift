@@ -171,6 +171,13 @@ struct WorkoutDay: Identifiable, Codable, Hashable {
     }
 }
 
+struct ActiveWorkoutSession: Identifiable, Hashable {
+    let id: UUID
+    let dayID: WorkoutDay.ID
+    let startedAt: Date
+    var currentExerciseIndex: Int
+}
+
 extension ClosedRange<Int> where Bound == Int {
     var displayText: String {
         "\(lowerBound)-\(upperBound)"

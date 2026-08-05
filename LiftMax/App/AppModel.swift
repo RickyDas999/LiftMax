@@ -5,6 +5,7 @@ import Observation
 final class AppModel {
     var workoutDays: [WorkoutDay]
     var saveErrorMessage: String?
+    var activeWorkoutSession: ActiveWorkoutSession?
 
     @ObservationIgnored private let storageURL: URL
 
@@ -43,6 +44,26 @@ final class AppModel {
             .map { $0 }
     }
 
+    var activeWorkoutDay: WorkoutDay? {
+        guard let activeWorkoutSession else {
+            return nil
+        }
+
+        return workoutDay(withID: activeWorkoutSession.dayID)
+    }
+
+    var activeExercise: Exercise? {
+        guard let activeWorkoutSession, let day = activeWorkoutDay else {
+            return nil
+        }
+
+        guard day.exercises.indices.contains(activeWorkoutSession.currentExerciseIndex) else {
+            return nil
+        }
+
+        return day.exercises[activeWorkoutSession.currentExerciseIndex]
+    }
+
     func workoutDay(withID id: WorkoutDay.ID) -> WorkoutDay? {
         workoutDays.first(where: { $0.id == id })
     }
@@ -76,6 +97,54 @@ final class AppModel {
 
         workoutDays[dayIndex].exercises[exerciseIndex].sets.append(newSet)
         save()
+    }
+
+    func startWorkoutSession(dayID: WorkoutDay.ID) {
+        guard let day = workoutDay(withID: dayID), !day.exercises.isEmpty else {
+            return
+        }
+
+        activeWorkoutSession = ActiveWorkoutSession(
+            id: UUID(),
+            dayID: dayID,
+            startedAt: .now,
+            currentExerciseIndex: 0
+        )
+    }
+
+    func endWorkoutSession() {
+        activeWorkoutSession = nil
+    }
+
+    func goToExercise(index: Int) {
+        guard var activeWorkoutSession, let day = activeWorkoutDay else {
+            return
+        }
+
+        guard day.exercises.indices.contains(index) else {
+            return
+        }
+
+        activeWorkoutSession.currentExerciseIndex = index
+        self.activeWorkoutSession = activeWorkoutSession
+    }
+
+    func advanceToNextExercise() {
+        guard let activeWorkoutSession, let day = activeWorkoutDay else {
+            return
+        }
+
+        let nextIndex = min(activeWorkoutSession.currentExerciseIndex + 1, day.exercises.count - 1)
+        goToExercise(index: nextIndex)
+    }
+
+    func moveToPreviousExercise() {
+        guard let activeWorkoutSession else {
+            return
+        }
+
+        let previousIndex = max(activeWorkoutSession.currentExerciseIndex - 1, 0)
+        goToExercise(index: previousIndex)
     }
 
     func addWorkoutDay(title: String, focus: String) {

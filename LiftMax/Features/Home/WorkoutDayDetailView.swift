@@ -16,13 +16,17 @@ struct WorkoutDayDetailView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         summaryCard(for: day)
 
-                        ForEach(day.exercises) { exercise in
-                            NavigationLink {
-                                ExerciseDetailView(dayID: day.id, exerciseID: exercise.id)
-                            } label: {
-                                exerciseRow(exercise)
+                        if day.exercises.isEmpty {
+                            emptyState
+                        } else {
+                            ForEach(day.exercises) { exercise in
+                                NavigationLink {
+                                    ExerciseDetailView(dayID: day.id, exerciseID: exercise.id)
+                                } label: {
+                                    exerciseRow(exercise)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                     .padding(20)
@@ -106,6 +110,21 @@ struct WorkoutDayDetailView: View {
             endPoint: .bottomTrailing
         )
         .ignoresSafeArea()
+    }
+
+    private var emptyState: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("No exercises yet")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.white)
+
+            Text("Open Customize Split to add the lifts for this workout day.")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.72))
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 

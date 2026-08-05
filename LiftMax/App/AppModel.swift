@@ -78,6 +78,56 @@ final class AppModel {
         save()
     }
 
+    func addWorkoutDay(title: String, focus: String) {
+        let newDay = WorkoutDay(
+            id: UUID(),
+            title: title,
+            focus: focus,
+            exercises: []
+        )
+
+        workoutDays.append(newDay)
+        save()
+    }
+
+    func deleteWorkoutDay(dayID: WorkoutDay.ID) {
+        workoutDays.removeAll(where: { $0.id == dayID })
+        save()
+    }
+
+    func addExercise(
+        dayID: WorkoutDay.ID,
+        name: String,
+        category: ExerciseCategory,
+        targetRepRange: ClosedRange<Int>,
+        restSeconds: Int
+    ) {
+        guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
+            return
+        }
+
+        let newExercise = Exercise(
+            id: UUID(),
+            name: name,
+            category: category,
+            targetRepRange: targetRepRange,
+            restSeconds: restSeconds,
+            sets: []
+        )
+
+        workoutDays[dayIndex].exercises.append(newExercise)
+        save()
+    }
+
+    func deleteExercise(dayID: WorkoutDay.ID, exerciseID: Exercise.ID) {
+        guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
+            return
+        }
+
+        workoutDays[dayIndex].exercises.removeAll(where: { $0.id == exerciseID })
+        save()
+    }
+
     func updateSet(
         dayID: WorkoutDay.ID,
         exerciseID: Exercise.ID,

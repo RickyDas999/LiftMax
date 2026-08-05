@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(AppModel.self) private var appModel
+    @State private var showingSplitEditor = false
 
     var body: some View {
         NavigationStack {
@@ -23,6 +24,19 @@ struct HomeView: View {
                 ToolbarItem(placement: .principal) {
                     navBrand
                 }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingSplitEditor = true
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
+                    }
+                    .accessibilityLabel("Customize split")
+                }
+            }
+            .sheet(isPresented: $showingSplitEditor) {
+                SplitEditorView()
+                    .environment(appModel)
             }
         }
     }

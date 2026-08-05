@@ -78,6 +78,49 @@ final class AppModel {
         save()
     }
 
+    func updateSet(
+        dayID: WorkoutDay.ID,
+        exerciseID: Exercise.ID,
+        setID: ExerciseSet.ID,
+        weight: Double,
+        reps: Int,
+        isWarmup: Bool
+    ) {
+        guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
+            return
+        }
+
+        guard let exerciseIndex = workoutDays[dayIndex].exercises.firstIndex(where: { $0.id == exerciseID }) else {
+            return
+        }
+
+        guard let setIndex = workoutDays[dayIndex].exercises[exerciseIndex].sets.firstIndex(where: { $0.id == setID }) else {
+            return
+        }
+
+        workoutDays[dayIndex].exercises[exerciseIndex].sets[setIndex].weight = weight
+        workoutDays[dayIndex].exercises[exerciseIndex].sets[setIndex].reps = reps
+        workoutDays[dayIndex].exercises[exerciseIndex].sets[setIndex].isWarmup = isWarmup
+        save()
+    }
+
+    func deleteSet(
+        dayID: WorkoutDay.ID,
+        exerciseID: Exercise.ID,
+        setID: ExerciseSet.ID
+    ) {
+        guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
+            return
+        }
+
+        guard let exerciseIndex = workoutDays[dayIndex].exercises.firstIndex(where: { $0.id == exerciseID }) else {
+            return
+        }
+
+        workoutDays[dayIndex].exercises[exerciseIndex].sets.removeAll(where: { $0.id == setID })
+        save()
+    }
+
     private func load() {
         do {
             let data = try Data(contentsOf: storageURL)

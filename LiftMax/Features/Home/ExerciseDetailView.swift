@@ -7,6 +7,7 @@ struct ExerciseDetailView: View {
     let exerciseID: Exercise.ID
 
     @State private var showingAddSetSheet = false
+    @State private var editingSet: ExerciseSet?
 
     private var exercise: Exercise? {
         appModel.exercise(dayID: dayID, exerciseID: exerciseID)
@@ -40,7 +41,30 @@ struct ExerciseDetailView: View {
                                 .foregroundStyle(.secondary)
                         } else {
                             ForEach(exercise.workingSets) { set in
-                                setRow(set)
+                                Button {
+                                    editingSet = set
+                                } label: {
+                                    setRow(set)
+                                }
+                                .buttonStyle(.plain)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        appModel.deleteSet(
+                                            dayID: dayID,
+                                            exerciseID: exerciseID,
+                                            setID: set.id
+                                        )
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+
+                                    Button {
+                                        editingSet = set
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                }
                             }
                         }
                     }
@@ -56,12 +80,29 @@ struct ExerciseDetailView: View {
                 }
                 .sheet(isPresented: $showingAddSetSheet) {
                     AddSetSheet(
+                        mode: .add,
                         exerciseName: exercise.name,
                         recentSet: exercise.recentSet
                     ) { weight, reps, isWarmup in
                         appModel.addSet(
                             dayID: dayID,
                             exerciseID: exerciseID,
+                            weight: weight,
+                            reps: reps,
+                            isWarmup: isWarmup
+                        )
+                    }
+                }
+                .sheet(item: $editingSet) { set in
+                    AddSetSheet(
+                        mode: .edit(existingSet: set),
+                        exerciseName: exercise.name,
+                        recentSet: exercise.recentSet
+                    ) { weight, reps, isWarmup in
+                        appModel.updateSet(
+                            dayID: dayID,
+                            exerciseID: exerciseID,
+                            setID: set.id,
                             weight: weight,
                             reps: reps,
                             isWarmup: isWarmup
@@ -158,6 +199,7 @@ struct ExerciseDetailView: View {
 private struct AddSetSheet: View {
     @Environment(\.dismiss) private var dismiss
 
+    let mode: SheetMode
     let exerciseName: String
     let recentSet: ExerciseSet?
     let onSave: (Double, Int, Bool) -> Void
@@ -173,7 +215,11 @@ private struct AddSetSheet: View {
                     Text(exerciseName)
                         .font(.headline)
 
-                    if let recentSet {
+                    if case let .edit(existingSet) = mode {
+                        Text("Editing: \(existingSet.weight.formattedWeight) lb x \(existingSet.reps)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else if let recentSet {
                         Text("Last working set: \(recentSet.weight.formattedWeight) lb x \(recentSet.reps)")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -190,7 +236,7 @@ private struct AddSetSheet: View {
                     Toggle("Warm-up set", isOn: $isWarmup)
                 }
             }
-            .navigationTitle("Add Set")
+            .navigationTitle(mode.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -212,7 +258,11 @@ private struct AddSetSheet: View {
                 }
             }
             .onAppear {
-                if let recentSet {
+                if case let .edit(existingSet) = mode {
+                    weightText = existingSet.weight.formattedWeight
+                    repsText = String(existingSet.reps)
+                    isWarmup = existingSet.isWarmup
+                } else if let recentSet {
                     weightText = recentSet.weight.formattedWeight
                     repsText = String(recentSet.reps)
                 }
@@ -226,6 +276,20 @@ private struct AddSetSheet: View {
         }
 
         return weight > 0 && reps > 0
+    }
+}
+
+private enum SheetMode {
+    case add
+    case edit(existingSet: ExerciseSet)
+
+    var navigationTitle: String {
+        switch self {
+        case .add:
+            return "Add Set"
+        case .edit:
+            return "Edit Set"
+        }
     }
 }
 

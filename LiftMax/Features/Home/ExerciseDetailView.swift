@@ -29,6 +29,11 @@ struct ExerciseDetailView: View {
                         .padding(.vertical, 6)
                     }
 
+                    Section("Progression Guidance") {
+                        progressionCard(for: exercise)
+                        momentumCard(for: exercise)
+                    }
+
                     Section("Recent Sets") {
                         if exercise.sets.isEmpty {
                             Text("No sets logged yet.")
@@ -91,6 +96,62 @@ struct ExerciseDetailView: View {
             }
         }
         .padding(.vertical, 2)
+    }
+
+    private func progressionCard(for exercise: Exercise) -> some View {
+        let insight = exercise.progressInsight
+
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(insight.status.title)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(statusColor(for: insight.status))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(statusColor(for: insight.status).opacity(0.12), in: Capsule())
+
+                Spacer()
+
+                if let suggestedWeight = insight.suggestedWeight {
+                    Text("\(suggestedWeight.formattedWeight) lb target")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Text(insight.headline)
+                .font(.headline.weight(.bold))
+
+            Text(insight.detail)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func momentumCard(for exercise: Exercise) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Momentum")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.secondary)
+
+            Text(exercise.momentumSummary)
+                .font(.subheadline.weight(.medium))
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func statusColor(for status: ProgressStatus) -> Color {
+        switch status {
+        case .increaseWeight:
+            return .green
+        case .addReps:
+            return .blue
+        case .holdWeight:
+            return .orange
+        case .buildBaseline:
+            return .gray
+        }
     }
 }
 

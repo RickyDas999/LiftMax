@@ -41,6 +41,106 @@ struct Exercise: Identifiable, Codable, Hashable {
     var recentSet: ExerciseSet? {
         workingSets.first
     }
+
+    var previousWorkingSet: ExerciseSet? {
+        guard workingSets.count > 1 else {
+            return nil
+        }
+
+        return workingSets[1]
+    }
+
+    var progressInsight: ProgressInsight {
+        guard let recentSet else {
+            return ProgressInsight(
+                status: .buildBaseline,
+                headline: "Log your first working set",
+                detail: "You need one clean baseline set before LiftMaxx can suggest overload.",
+                suggestedWeight: nil
+            )
+        }
+
+        if recentSet.reps >= targetRepRange.upperBound {
+            return ProgressInsight(
+                status: .increaseWeight,
+                headline: "Increase the load next session",
+                detail: "You hit the top of your rep range. Add weight and work back through the range.",
+                suggestedWeight: nextWeight(from: recentSet.weight)
+            )
+        }
+
+        if recentSet.reps >= targetRepRange.lowerBound {
+            return ProgressInsight(
+                status: .addReps,
+                headline: "Keep the weight and chase more reps",
+                detail: "You are inside the target range. Beat this set by 1-2 reps before adding load.",
+                suggestedWeight: recentSet.weight
+            )
+        }
+
+        return ProgressInsight(
+            status: .holdWeight,
+            headline: "Hold the weight steady",
+            detail: "You are below the rep floor. Own this load before trying to progress it.",
+            suggestedWeight: recentSet.weight
+        )
+    }
+
+    var momentumSummary: String {
+        guard let recentSet, let previousWorkingSet else {
+            return "Need two logged working sets to measure trend."
+        }
+
+        if recentSet.weight > previousWorkingSet.weight {
+            let weightIncrease = (recentSet.weight - previousWorkingSet.weight).formattedWeight
+            return "Up \(weightIncrease) lb from the prior working set."
+        }
+
+        if recentSet.reps > previousWorkingSet.reps {
+            return "Up \(recentSet.reps - previousWorkingSet.reps) reps at the same load."
+        }
+
+        if recentSet.reps == previousWorkingSet.reps && recentSet.weight == previousWorkingSet.weight {
+            return "Matched the previous working set. Next goal: one more rep."
+        }
+
+        return "Recent set dipped. Recover and beat it next session."
+    }
+
+    private func nextWeight(from currentWeight: Double) -> Double {
+        if currentWeight < 25 {
+            return currentWeight + 2.5
+        }
+
+        return currentWeight + 5
+    }
+}
+
+struct ProgressInsight: Hashable {
+    let status: ProgressStatus
+    let headline: String
+    let detail: String
+    let suggestedWeight: Double?
+}
+
+enum ProgressStatus: String, Hashable {
+    case increaseWeight
+    case addReps
+    case holdWeight
+    case buildBaseline
+
+    var title: String {
+        switch self {
+        case .increaseWeight:
+            return "Add Weight"
+        case .addReps:
+            return "Add Reps"
+        case .holdWeight:
+            return "Hold Steady"
+        case .buildBaseline:
+            return "Build Baseline"
+        }
+    }
 }
 
 enum ExerciseCategory: String, Codable, CaseIterable, Hashable {

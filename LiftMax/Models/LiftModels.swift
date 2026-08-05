@@ -9,11 +9,19 @@ struct Exercise: Identifiable, Codable, Hashable {
     var sets: [ExerciseSet]
 
     var lastPerformanceSummary: String {
-        guard let heaviestSet = sets.max(by: { $0.weight < $1.weight }) else {
+        guard let mostRecentSet = sets.sorted(by: { $0.completedAt > $1.completedAt }).first else {
             return "No sets yet"
         }
 
-        return "\(heaviestSet.weight.formattedWeight) lb x \(heaviestSet.reps) reps"
+        return "\(mostRecentSet.weight.formattedWeight) lb x \(mostRecentSet.reps) reps"
+    }
+
+    var personalBestSummary: String {
+        guard let heaviestSet = sets.max(by: { ($0.weight, $0.reps) < ($1.weight, $1.reps) }) else {
+            return "No PR yet"
+        }
+
+        return "\(heaviestSet.weight.formattedWeight) lb x \(heaviestSet.reps)"
     }
 
     var estimatedOneRepMax: Double {
@@ -22,6 +30,16 @@ struct Exercise: Identifiable, Codable, Hashable {
         }
 
         return bestSet.weight * (1 + (Double(bestSet.reps) / 30))
+    }
+
+    var workingSets: [ExerciseSet] {
+        sets
+            .filter { !$0.isWarmup }
+            .sorted(by: { $0.completedAt > $1.completedAt })
+    }
+
+    var recentSet: ExerciseSet? {
+        workingSets.first
     }
 }
 
@@ -47,6 +65,16 @@ struct WorkoutDay: Identifiable, Codable, Hashable {
     var title: String
     var focus: String
     var exercises: [Exercise]
+
+    var totalWorkingSets: Int {
+        exercises.flatMap(\.workingSets).count
+    }
+}
+
+extension ClosedRange<Int> where Bound == Int {
+    var displayText: String {
+        "\(lowerBound)-\(upperBound)"
+    }
 }
 
 extension Double {

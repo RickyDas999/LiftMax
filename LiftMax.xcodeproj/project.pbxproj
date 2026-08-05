@@ -12,6 +12,8 @@
 		A100000F2D00000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A100000E2D00000100000001 /* Assets.xcassets */; };
 		A100001A2D00000100000001 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000192D00000100000001 /* AppModel.swift */; };
 		A100001C2D00000100000001 /* LiftModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001B2D00000100000001 /* LiftModels.swift */; };
+		A100001F2D00000100000001 /* WorkoutDayDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001E2D00000100000001 /* WorkoutDayDetailView.swift */; };
+		A10000212D00000100000001 /* ExerciseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000202D00000100000001 /* ExerciseDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +23,8 @@
 		A100000E2D00000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A10000192D00000100000001 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		A100001B2D00000100000001 /* LiftModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftModels.swift; sourceTree = "<group>"; };
+		A100001E2D00000100000001 /* WorkoutDayDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutDayDetailView.swift; sourceTree = "<group>"; };
+		A10000202D00000100000001 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +86,8 @@
 			isa = PBXGroup;
 			children = (
 				A100000C2D00000100000001 /* HomeView.swift */,
+				A100001E2D00000100000001 /* WorkoutDayDetailView.swift */,
+				A10000202D00000100000001 /* ExerciseDetailView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -166,6 +172,8 @@
 				A100000B2D00000100000001 /* LiftMaxApp.swift in Sources */,
 				A100001A2D00000100000001 /* AppModel.swift in Sources */,
 				A100000D2D00000100000001 /* HomeView.swift in Sources */,
+				A100001F2D00000100000001 /* WorkoutDayDetailView.swift in Sources */,
+				A10000212D00000100000001 /* ExerciseDetailView.swift in Sources */,
 				A100001C2D00000100000001 /* LiftModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

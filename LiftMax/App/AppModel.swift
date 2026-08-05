@@ -4,9 +4,14 @@ import Observation
 @Observable
 final class AppModel {
     var workoutDays: [WorkoutDay]
+    var saveErrorMessage: String?
+
+    @ObservationIgnored private let storageURL: URL
 
     init(workoutDays: [WorkoutDay] = SampleData.workoutDays) {
+        self.storageURL = Self.makeStorageURL()
         self.workoutDays = workoutDays
+        load()
     }
 
     var totalWorkingSets: Int {
@@ -36,6 +41,76 @@ final class AppModel {
             .sorted { $0.estimatedOneRepMax > $1.estimatedOneRepMax }
             .prefix(3)
             .map { $0 }
+    }
+
+    func workoutDay(withID id: WorkoutDay.ID) -> WorkoutDay? {
+        workoutDays.first(where: { $0.id == id })
+    }
+
+    func exercise(dayID: WorkoutDay.ID, exerciseID: Exercise.ID) -> Exercise? {
+        workoutDay(withID: dayID)?.exercises.first(where: { $0.id == exerciseID })
+    }
+
+    func addSet(
+        dayID: WorkoutDay.ID,
+        exerciseID: Exercise.ID,
+        weight: Double,
+        reps: Int,
+        isWarmup: Bool
+    ) {
+        guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
+            return
+        }
+
+        guard let exerciseIndex = workoutDays[dayIndex].exercises.firstIndex(where: { $0.id == exerciseID }) else {
+            return
+        }
+
+        let newSet = ExerciseSet(
+            id: UUID(),
+            weight: weight,
+            reps: reps,
+            isWarmup: isWarmup,
+            completedAt: .now
+        )
+
+        workoutDays[dayIndex].exercises[exerciseIndex].sets.append(newSet)
+        save()
+    }
+
+    private func load() {
+        do {
+            let data = try Data(contentsOf: storageURL)
+            workoutDays = try JSONDecoder().decode([WorkoutDay].self, from: data)
+        } catch {
+            if (error as NSError).code != NSFileReadNoSuchFileError {
+                saveErrorMessage = "Could not load saved workouts."
+            }
+
+            save()
+        }
+    }
+
+    private func save() {
+        do {
+            let directoryURL = storageURL.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+
+            let data = try JSONEncoder().encode(workoutDays)
+            try data.write(to: storageURL, options: .atomic)
+            saveErrorMessage = nil
+        } catch {
+            saveErrorMessage = "Could not save workouts."
+        }
+    }
+
+    private static func makeStorageURL() -> URL {
+        let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+
+        return baseURL
+            .appendingPathComponent("LiftMax", isDirectory: true)
+            .appendingPathComponent("workout-days.json")
     }
 }
 

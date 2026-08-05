@@ -9,6 +9,9 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     heroCard
                     statsGrid
+                    if let saveErrorMessage = appModel.saveErrorMessage {
+                        saveErrorBanner(message: saveErrorMessage)
+                    }
                     workoutDaysSection
                     prsSection
                 }
@@ -55,50 +58,55 @@ struct HomeView: View {
             sectionTitle("Workout Split")
 
             ForEach(appModel.workoutDays) { day in
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(day.title)
-                                .font(.headline.weight(.bold))
-                                .foregroundStyle(.white)
-
-                            Text(day.focus)
-                                .font(.footnote)
-                                .foregroundStyle(.white.opacity(0.72))
-                        }
-
-                        Spacer()
-
-                        Text("\(day.exercises.count) lifts")
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.white.opacity(0.10), in: Capsule())
-                    }
-
-                    ForEach(day.exercises.prefix(3)) { exercise in
+                NavigationLink {
+                    WorkoutDayDetailView(dayID: day.id)
+                } label: {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(exercise.name)
-                                    .font(.subheadline.weight(.semibold))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(day.title)
+                                    .font(.headline.weight(.bold))
                                     .foregroundStyle(.white)
 
-                                Text("\(exercise.targetRepRange.lowerBound)-\(exercise.targetRepRange.upperBound) reps target")
-                                    .font(.caption)
-                                    .foregroundStyle(.white.opacity(0.65))
+                                Text(day.focus)
+                                    .font(.footnote)
+                                    .foregroundStyle(.white.opacity(0.72))
                             }
 
                             Spacer()
 
-                            Text(exercise.lastPerformanceSummary)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white.opacity(0.88))
+                            Text("\(day.exercises.count) lifts")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(.white.opacity(0.10), in: Capsule())
+                        }
+
+                        ForEach(day.exercises.prefix(3)) { exercise in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(exercise.name)
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(.white)
+
+                                    Text("\(exercise.targetRepRange.displayText) reps target")
+                                        .font(.caption)
+                                        .foregroundStyle(.white.opacity(0.65))
+                                }
+
+                                Spacer()
+
+                                Text(exercise.lastPerformanceSummary)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.88))
+                            }
                         }
                     }
+                    .padding(18)
+                    .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                 }
-                .padding(18)
-                .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .buttonStyle(.plain)
             }
         }
     }
@@ -175,6 +183,16 @@ struct HomeView: View {
         Text(title)
             .font(.title3.weight(.bold))
             .foregroundStyle(.white)
+    }
+
+    private func saveErrorBanner(message: String) -> some View {
+        Text(message)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.red.opacity(0.35), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private func pill(text: String) -> some View {

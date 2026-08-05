@@ -18,13 +18,19 @@ struct HomeView: View {
                 .padding(24)
             }
             .background(backgroundGradient)
-            .navigationTitle("LiftMax")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    navBrand
+                }
+            }
         }
     }
 
     private var heroCard: some View {
         VStack(alignment: .leading, spacing: 14) {
+            brandLockup
+
             Text("Progressive overload, minus the messy notes.")
                 .font(.system(size: 32, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
@@ -41,7 +47,21 @@ struct HomeView: View {
         }
         .padding(22)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .background(
+            LinearGradient(
+                colors: [
+                    .white.opacity(0.14),
+                    .white.opacity(0.07)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .strokeBorder(.white.opacity(0.12), lineWidth: 1)
+        )
     }
 
     private var statsGrid: some View {
@@ -202,6 +222,75 @@ struct HomeView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(.white.opacity(0.10), in: Capsule())
+    }
+
+    private var brandLockup: some View {
+        HStack(alignment: .center, spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.99, green: 0.74, blue: 0.31),
+                                Color(red: 0.96, green: 0.43, blue: 0.29)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                Image(systemName: "bolt.heart.fill")
+                    .font(.system(size: 18, weight: .black))
+                    .foregroundStyle(Color.black.opacity(0.82))
+            }
+            .frame(width: 42, height: 42)
+            .shadow(color: .black.opacity(0.24), radius: 16, x: 0, y: 10)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text("LiftMaxx")
+                    .font(.system(size: 34, weight: .black, design: .rounded))
+                    .italic()
+                    .tracking(0.4)
+                    .foregroundStyle(Color.white)
+                    .shadow(color: .black.opacity(0.30), radius: 12, x: 0, y: 4)
+
+                Text("Built to chase the next rep")
+                    .font(.caption.weight(.bold))
+                    .tracking(1.2)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.white.opacity(0.72))
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var navBrand: some View {
+        HStack(spacing: 8) {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.99, green: 0.74, blue: 0.31),
+                            Color(red: 0.96, green: 0.43, blue: 0.29)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay {
+                    Image(systemName: "bolt.heart.fill")
+                        .font(.system(size: 10, weight: .black))
+                        .foregroundStyle(Color.black.opacity(0.78))
+                }
+                .frame(width: 20, height: 20)
+
+            Text("LiftMaxx")
+                .font(.system(size: 20, weight: .black, design: .rounded))
+                .italic()
+                .tracking(0.3)
+                .foregroundStyle(Color.black.opacity(0.88))
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

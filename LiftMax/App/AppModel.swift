@@ -109,7 +109,7 @@ final class AppModel {
             ?? FileManager.default.temporaryDirectory
 
         return baseURL
-            .appendingPathComponent("LiftMax", isDirectory: true)
+            .appendingPathComponent("LiftMaxx", isDirectory: true)
             .appendingPathComponent("workout-days.json")
     }
 }

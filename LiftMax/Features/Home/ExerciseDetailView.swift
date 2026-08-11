@@ -19,6 +19,15 @@ struct ExerciseDetailView: View {
                 List {
                     Section {
                         VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(exercise.category.color)
+                                    .frame(width: 8, height: 8)
+                                Text(exercise.category.rawValue)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(exercise.category.color)
+                            }
+
                             Text("\(exercise.targetRepRange.displayText) rep target")
                                 .font(.headline.weight(.bold))
                             Text("Rest \(exercise.restSeconds) sec • Last \(exercise.lastPerformanceSummary)")
@@ -26,6 +35,7 @@ struct ExerciseDetailView: View {
                                 .foregroundStyle(.secondary)
                             Text("Personal best \(exercise.personalBestSummary)")
                                 .font(.subheadline.weight(.medium))
+                                .foregroundStyle(exercise.category.color)
                         }
                         .padding(.vertical, 6)
                     }
@@ -71,7 +81,12 @@ struct ExerciseDetailView: View {
                 }
                 .navigationTitle(exercise.name)
                 .navigationBarTitleDisplayMode(.inline)
+                .brandedNavigationBar()
                 .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        BrandedTitle(text: exercise.name)
+                    }
+
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Add Set") {
                             showingAddSetSheet = true

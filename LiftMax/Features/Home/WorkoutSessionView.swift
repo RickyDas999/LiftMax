@@ -37,7 +37,12 @@ struct WorkoutSessionView: View {
                     .background(backgroundGradient)
                     .navigationTitle("Workout Session")
                     .navigationBarTitleDisplayMode(.inline)
+                    .brandedNavigationBar()
                     .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            BrandedTitle(text: "Workout Session")
+                        }
+
                         ToolbarItem(placement: .topBarLeading) {
                             Button("End") {
                                 appModel.endWorkoutSession()

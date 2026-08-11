@@ -68,6 +68,12 @@ struct WorkoutDayDetailView: View {
                 }
                 .navigationTitle(day.title)
                 .navigationBarTitleDisplayMode(.inline)
+                .brandedNavigationBar()
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        BrandedTitle(text: day.title)
+                    }
+                }
                 .fullScreenCover(
                     item: Binding(
                         get: { appModel.activeWorkoutSession },
@@ -89,6 +95,10 @@ struct WorkoutDayDetailView: View {
 
     private func exerciseRow(_ exercise: Exercise) -> some View {
         HStack(spacing: 12) {
+            Circle()
+                .fill(exercise.category.color)
+                .frame(width: 10, height: 10)
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(exercise.name)
                     .font(.headline)

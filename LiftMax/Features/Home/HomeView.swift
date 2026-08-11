@@ -61,7 +61,12 @@ struct HomeView: View {
             .listStyle(.plain)
             .navigationTitle("LiftMaxx")
             .navigationBarTitleDisplayMode(.inline)
+            .brandedNavigationBar()
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    BrandedTitle(text: "LiftMaxx")
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingSplitEditor = true

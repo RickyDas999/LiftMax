@@ -17,6 +17,7 @@
 		A10000232D00000100000001 /* SplitEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000222D00000100000001 /* SplitEditorView.swift */; };
 		A10000252D00000100000001 /* AddExerciseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000242D00000100000001 /* AddExerciseSheet.swift */; };
 		A10000272D00000100000001 /* WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000262D00000100000001 /* WorkoutSessionView.swift */; };
+		A10000292D00000100000001 /* BrandedNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000282D00000100000001 /* BrandedNavigationBar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		A10000222D00000100000001 /* SplitEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitEditorView.swift; sourceTree = "<group>"; };
 		A10000242D00000100000001 /* AddExerciseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExerciseSheet.swift; sourceTree = "<group>"; };
 		A10000262D00000100000001 /* WorkoutSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionView.swift; sourceTree = "<group>"; };
+		A10000282D00000100000001 /* BrandedNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedNavigationBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 				A10000222D00000100000001 /* SplitEditorView.swift */,
 				A10000242D00000100000001 /* AddExerciseSheet.swift */,
 				A10000262D00000100000001 /* WorkoutSessionView.swift */,
+				A10000282D00000100000001 /* BrandedNavigationBar.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -186,6 +189,7 @@
 				A10000232D00000100000001 /* SplitEditorView.swift in Sources */,
 				A10000252D00000100000001 /* AddExerciseSheet.swift in Sources */,
 				A10000272D00000100000001 /* WorkoutSessionView.swift in Sources */,
+				A10000292D00000100000001 /* BrandedNavigationBar.swift in Sources */,
 				A100001C2D00000100000001 /* LiftModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

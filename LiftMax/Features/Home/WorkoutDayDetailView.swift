@@ -14,13 +14,47 @@ struct WorkoutDayDetailView: View {
     var body: some View {
         Group {
             if let day {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        summaryCard(for: day)
-                        sessionCallout(for: day)
+                List {
+                    Section {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(day.focus)
+                                .font(.headline)
 
+                            Text("\(day.exercises.count) exercises • \(day.totalWorkingSets) working sets logged")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+
+                    Section("Session Mode") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Use a focused logging flow during training with a current exercise target and quick set entry.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
+                            Button {
+                                appModel.startWorkoutSession(dayID: day.id)
+                            } label: {
+                                Label("Start Workout", systemImage: "play.fill")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 4)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(Color(red: 0.97, green: 0.52, blue: 0.28))
+                            .disabled(day.exercises.isEmpty)
+                        }
+                        .padding(.vertical, 4)
+                    }
+
+                    Section("Exercises") {
                         if day.exercises.isEmpty {
-                            emptyState
+                            ContentUnavailableView(
+                                "No exercises yet",
+                                systemImage: "dumbbell",
+                                description: Text("Open Customize Split to add the lifts for this workout day.")
+                            )
                         } else {
                             ForEach(day.exercises) { exercise in
                                 NavigationLink {
@@ -28,13 +62,10 @@ struct WorkoutDayDetailView: View {
                                 } label: {
                                     exerciseRow(exercise)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }
-                    .padding(20)
                 }
-                .background(backgroundGradient)
                 .navigationTitle(day.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .fullScreenCover(
@@ -56,132 +87,34 @@ struct WorkoutDayDetailView: View {
         }
     }
 
-    private func summaryCard(for day: WorkoutDay) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(day.focus)
-                .font(.title2.weight(.bold))
-                .foregroundStyle(.white)
-
-            Text("\(day.exercises.count) exercises • \(day.totalWorkingSets) working sets logged")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.white.opacity(0.76))
-        }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-    }
-
     private func exerciseRow(_ exercise: Exercise) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(exercise.name)
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(.white)
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(exercise.name)
+                    .font(.headline)
 
-                    Text("\(exercise.category.rawValue) • \(exercise.targetRepRange.displayText) reps")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.65))
-                }
+                Text("\(exercise.category.rawValue) • \(exercise.targetRepRange.displayText) reps")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
-                Spacer()
-
-                Button {
-                    editingExercise = exercise
-                } label: {
-                    Image(systemName: "pencil.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .padding(4)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Edit \(exercise.name)")
-
-                Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.bold))
-                    .foregroundStyle(.white.opacity(0.5))
+                Text("Last \(exercise.lastPerformanceSummary) • Best \(exercise.personalBestSummary)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
-            HStack {
-                metricPill(title: "Last", value: exercise.lastPerformanceSummary)
-                metricPill(title: "Best", value: exercise.personalBestSummary)
-            }
-        }
-        .padding(18)
-        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-    }
-
-    private func metricPill(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(.white.opacity(0.58))
-            Text(value)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.white)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    private var backgroundGradient: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.07, green: 0.09, blue: 0.14),
-                Color(red: 0.12, green: 0.15, blue: 0.24),
-                Color(red: 0.18, green: 0.21, blue: 0.32)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
-    }
-
-    private var emptyState: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("No exercises yet")
-                .font(.title3.weight(.bold))
-                .foregroundStyle(.white)
-
-            Text("Open Customize Split to add the lifts for this workout day.")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.72))
-        }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-    }
-
-    private func sessionCallout(for day: WorkoutDay) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Session Mode")
-                .font(.title3.weight(.bold))
-                .foregroundStyle(.white)
-
-            Text("Use a focused logging flow during training with a current exercise target and quick set entry.")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.74))
+            Spacer()
 
             Button {
-                appModel.startWorkoutSession(dayID: day.id)
+                editingExercise = exercise
             } label: {
-                HStack {
-                    Image(systemName: "play.fill")
-                    Text("Start Workout")
-                        .fontWeight(.bold)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
+                Image(systemName: "pencil")
+                    .foregroundStyle(.blue)
+                    .padding(8)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Color(red: 0.97, green: 0.52, blue: 0.28))
-            .disabled(day.exercises.isEmpty)
+            .buttonStyle(.plain)
+            .accessibilityLabel("Edit \(exercise.name)")
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .padding(.vertical, 4)
     }
 }
 

@@ -5,6 +5,8 @@ struct WorkoutDayDetailView: View {
 
     let dayID: WorkoutDay.ID
 
+    @State private var editingExercise: Exercise?
+
     private var day: WorkoutDay? {
         appModel.workoutDay(withID: dayID)
     }
@@ -44,6 +46,10 @@ struct WorkoutDayDetailView: View {
                     WorkoutSessionView()
                         .environment(appModel)
                 }
+                .sheet(item: $editingExercise) { exercise in
+                    AddExerciseSheet(dayID: day.id, existingExercise: exercise)
+                        .environment(appModel)
+                }
             } else {
                 ContentUnavailableView("Workout not found", systemImage: "exclamationmark.triangle")
             }
@@ -79,6 +85,17 @@ struct WorkoutDayDetailView: View {
                 }
 
                 Spacer()
+
+                Button {
+                    editingExercise = exercise
+                } label: {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .padding(4)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Edit \(exercise.name)")
 
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.bold))

@@ -45,6 +45,11 @@ struct ExerciseDetailView: View {
                         momentumCard(for: exercise)
                     }
 
+                    Section("Progression") {
+                        ProgressionChart(sets: exercise.workingSets, tint: exercise.category.color)
+                            .padding(.vertical, 6)
+                    }
+
                     Section("Recent Sets") {
                         if exercise.sets.isEmpty {
                             Text("No sets logged yet.")

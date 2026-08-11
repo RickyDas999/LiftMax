@@ -172,6 +172,14 @@ struct WorkoutSessionView: View {
                 sessionBadge(title: "Best", value: exercise.personalBestSummary)
             }
 
+            ProgressionChart(
+                sets: exercise.workingSets,
+                tint: exercise.category.color,
+                highlightedSetIDs: Set(sessionSets.map(\.id)),
+                emptyMessageColor: .white.opacity(0.72)
+            )
+            .colorScheme(.dark)
+
             Button {
                 showingAddSetSheet = true
             } label: {

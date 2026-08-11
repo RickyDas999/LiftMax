@@ -18,6 +18,7 @@
 		A10000252D00000100000001 /* AddExerciseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000242D00000100000001 /* AddExerciseSheet.swift */; };
 		A10000272D00000100000001 /* WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000262D00000100000001 /* WorkoutSessionView.swift */; };
 		A10000292D00000100000001 /* BrandedNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000282D00000100000001 /* BrandedNavigationBar.swift */; };
+		A100002B2D00000100000001 /* ProgressionChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100002A2D00000100000001 /* ProgressionChart.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		A10000242D00000100000001 /* AddExerciseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExerciseSheet.swift; sourceTree = "<group>"; };
 		A10000262D00000100000001 /* WorkoutSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionView.swift; sourceTree = "<group>"; };
 		A10000282D00000100000001 /* BrandedNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedNavigationBar.swift; sourceTree = "<group>"; };
+		A100002A2D00000100000001 /* ProgressionChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionChart.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 				A10000242D00000100000001 /* AddExerciseSheet.swift */,
 				A10000262D00000100000001 /* WorkoutSessionView.swift */,
 				A10000282D00000100000001 /* BrandedNavigationBar.swift */,
+				A100002A2D00000100000001 /* ProgressionChart.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -190,6 +193,7 @@
 				A10000252D00000100000001 /* AddExerciseSheet.swift in Sources */,
 				A10000272D00000100000001 /* WorkoutSessionView.swift in Sources */,
 				A10000292D00000100000001 /* BrandedNavigationBar.swift in Sources */,
+				A100002B2D00000100000001 /* ProgressionChart.swift in Sources */,
 				A100001C2D00000100000001 /* LiftModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

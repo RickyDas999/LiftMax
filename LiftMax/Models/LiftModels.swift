@@ -227,6 +227,10 @@ struct ExerciseSet: Identifiable, Codable, Hashable {
     var reps: Int
     var isWarmup: Bool
     var completedAt: Date
+
+    var estimatedOneRepMax: Double {
+        weight * (1 + (Double(reps) / 30))
+    }
 }
 
 struct WorkoutDay: Identifiable, Codable, Hashable {

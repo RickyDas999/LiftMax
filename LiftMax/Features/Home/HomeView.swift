@@ -113,17 +113,18 @@ struct HomeView: View {
 
     private var statsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 18) {
-            statTile(value: "\(appModel.workoutDays.count)", label: "Workout Days")
-            statTile(value: "\(appModel.totalWorkingSets)", label: "Working Sets")
-            statTile(value: "\(appModel.averageOneRepMax.formattedWeight) lb", label: "Avg e1RM")
-            statTile(value: "\(appModel.recentPRs.count)", label: "Top Movers")
+            statTile(value: "\(appModel.workoutDays.count)", label: "Workout Days", tint: Color(red: 0.36, green: 0.81, blue: 0.68))
+            statTile(value: "\(appModel.totalWorkingSets)", label: "Working Sets", tint: Color(red: 0.96, green: 0.73, blue: 0.35))
+            statTile(value: "\(appModel.averageOneRepMax.formattedWeight) lb", label: "Avg e1RM", tint: Color(red: 0.89, green: 0.45, blue: 0.44))
+            statTile(value: "\(appModel.recentPRs.count)", label: "Top Movers", tint: Color(red: 0.43, green: 0.58, blue: 0.95))
         }
     }
 
-    private func statTile(value: String, label: String) -> some View {
+    private func statTile(value: String, label: String, tint: Color) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
                 .font(.title2.weight(.bold))
+                .foregroundStyle(tint)
             Text(label)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -132,19 +133,25 @@ struct HomeView: View {
     }
 
     private func dayRow(_ day: WorkoutDay) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(day.title)
-                .font(.headline)
+        HStack(spacing: 12) {
+            iconBadge(systemName: "flame.fill", tint: Color(red: 0.97, green: 0.52, blue: 0.28))
 
-            Text("\(day.focus) • \(day.exercises.count) exercises")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(day.title)
+                    .font(.headline)
+
+                Text("\(day.focus) • \(day.exercises.count) exercises")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding(.vertical, 2)
     }
 
     private func prRow(_ exercise: Exercise) -> some View {
-        HStack {
+        HStack(spacing: 12) {
+            iconBadge(systemName: "trophy.fill", tint: exercise.category.color)
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(exercise.name)
                     .font(.headline)
@@ -159,6 +166,7 @@ struct HomeView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text("\(exercise.estimatedOneRepMax.formattedWeight) lb")
                     .font(.headline)
+                    .foregroundStyle(exercise.category.color)
 
                 Text(exercise.lastPerformanceSummary)
                     .font(.caption)
@@ -166,6 +174,18 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, 2)
+    }
+
+    private func iconBadge(systemName: String, tint: Color) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(tint.opacity(0.16))
+
+            Image(systemName: systemName)
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(tint)
+        }
+        .frame(width: 34, height: 34)
     }
 }
 

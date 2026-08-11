@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 struct Exercise: Identifiable, Codable, Hashable {
     let id: UUID
@@ -201,6 +202,23 @@ enum ExerciseCategory: String, Codable, CaseIterable, Hashable {
     case legs = "Legs"
     case arms = "Arms"
     case core = "Core"
+
+    var color: Color {
+        switch self {
+        case .chest:
+            return Color(red: 0.93, green: 0.38, blue: 0.38)
+        case .back:
+            return Color(red: 0.34, green: 0.53, blue: 0.93)
+        case .shoulders:
+            return Color(red: 0.62, green: 0.42, blue: 0.93)
+        case .legs:
+            return Color(red: 0.35, green: 0.78, blue: 0.47)
+        case .arms:
+            return Color(red: 0.97, green: 0.60, blue: 0.24)
+        case .core:
+            return Color(red: 0.29, green: 0.78, blue: 0.78)
+        }
+    }
 }
 
 struct ExerciseSet: Identifiable, Codable, Hashable {

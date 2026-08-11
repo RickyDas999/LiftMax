@@ -5,6 +5,7 @@ struct WorkoutSessionView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showingAddSetSheet = false
+    @State private var editingSet: ExerciseSet?
 
     private var session: ActiveWorkoutSession? {
         appModel.activeWorkoutSession
@@ -43,7 +44,7 @@ struct WorkoutSessionView: View {
                         }
                     }
                     .sheet(isPresented: $showingAddSetSheet) {
-                        SessionSetSheet(exercise: currentExercise) { weight, reps, isWarmup in
+                        SessionSetSheet(mode: .add, exercise: currentExercise) { weight, reps, isWarmup in
                             appModel.addSet(
                                 dayID: day.id,
                                 exerciseID: currentExercise.id,
@@ -57,6 +58,18 @@ struct WorkoutSessionView: View {
                                     durationSeconds: currentExercise.restSeconds
                                 )
                             }
+                        }
+                    }
+                    .sheet(item: $editingSet) { set in
+                        SessionSetSheet(mode: .edit(existingSet: set), exercise: currentExercise) { weight, reps, isWarmup in
+                            appModel.updateSet(
+                                dayID: day.id,
+                                exerciseID: currentExercise.id,
+                                setID: set.id,
+                                weight: weight,
+                                reps: reps,
+                                isWarmup: isWarmup
+                            )
                         }
                     }
                 } else {
@@ -134,15 +147,37 @@ struct WorkoutSessionView: View {
 
                     ForEach(sessionSets) { set in
                         HStack {
-                            Text("\(set.weight.formattedWeight) lb x \(set.reps)")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.white)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(set.weight.formattedWeight) lb x \(set.reps)")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.white)
+
+                                Text(set.completedAt.formatted(date: .omitted, time: .shortened))
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.62))
+                            }
 
                             Spacer()
 
-                            Text(set.completedAt.formatted(date: .omitted, time: .shortened))
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.62))
+                            Button {
+                                editingSet = set
+                            } label: {
+                                Image(systemName: "pencil")
+                                    .foregroundStyle(.white.opacity(0.7))
+                                    .padding(6)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Edit set")
+
+                            Button {
+                                appModel.deleteSet(dayID: day.id, exerciseID: exercise.id, setID: set.id)
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundStyle(.red)
+                                    .padding(6)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Delete set")
                         }
                     }
                 }
@@ -396,6 +431,7 @@ struct WorkoutSessionView: View {
 private struct SessionSetSheet: View {
     @Environment(\.dismiss) private var dismiss
 
+    let mode: SessionSetSheetMode
     let exercise: Exercise
     let onSave: (Double, Int, Bool) -> Void
 
@@ -410,7 +446,11 @@ private struct SessionSetSheet: View {
                     Text(exercise.name)
                         .font(.headline)
 
-                    if let recentSet = exercise.recentSet {
+                    if case let .edit(existingSet) = mode {
+                        Text("Editing: \(existingSet.weight.formattedWeight) lb x \(existingSet.reps)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else if let recentSet = exercise.recentSet {
                         Text("Last working set: \(recentSet.weight.formattedWeight) lb x \(recentSet.reps)")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -427,7 +467,7 @@ private struct SessionSetSheet: View {
                     Toggle("Warm-up set", isOn: $isWarmup)
                 }
             }
-            .navigationTitle("Log Set")
+            .navigationTitle(mode.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -449,7 +489,11 @@ private struct SessionSetSheet: View {
                 }
             }
             .onAppear {
-                if let recentSet = exercise.recentSet {
+                if case let .edit(existingSet) = mode {
+                    weightText = existingSet.weight.formattedWeight
+                    repsText = String(existingSet.reps)
+                    isWarmup = existingSet.isWarmup
+                } else if let recentSet = exercise.recentSet {
                     weightText = recentSet.weight.formattedWeight
                     repsText = String(recentSet.reps)
                 }
@@ -463,6 +507,20 @@ private struct SessionSetSheet: View {
         }
 
         return weight > 0 && reps > 0
+    }
+}
+
+private enum SessionSetSheetMode {
+    case add
+    case edit(existingSet: ExerciseSet)
+
+    var navigationTitle: String {
+        switch self {
+        case .add:
+            return "Log Set"
+        case .edit:
+            return "Edit Set"
+        }
     }
 }
 

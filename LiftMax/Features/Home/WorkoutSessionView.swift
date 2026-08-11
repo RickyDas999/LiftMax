@@ -6,6 +6,7 @@ struct WorkoutSessionView: View {
 
     @State private var showingAddSetSheet = false
     @State private var editingSet: ExerciseSet?
+    @State private var showingEditExerciseSheet = false
 
     private var session: ActiveWorkoutSession? {
         appModel.activeWorkoutSession
@@ -72,6 +73,10 @@ struct WorkoutSessionView: View {
                             )
                         }
                     }
+                    .sheet(isPresented: $showingEditExerciseSheet) {
+                        AddExerciseSheet(dayID: day.id, existingExercise: currentExercise)
+                            .environment(appModel)
+                    }
                 } else {
                     ContentUnavailableView("No active workout", systemImage: "figure.strengthtraining.traditional")
                 }
@@ -111,9 +116,23 @@ struct WorkoutSessionView: View {
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.white.opacity(0.62))
 
-            Text(exercise.name)
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+            HStack(alignment: .firstTextBaseline) {
+                Text(exercise.name)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+
+                Spacer()
+
+                Button {
+                    showingEditExerciseSheet = true
+                } label: {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Edit or swap exercise")
+            }
 
             Text("\(exercise.category.rawValue) • \(exercise.targetRepRange.displayText) reps • Rest \(exercise.restSeconds) sec")
                 .font(.subheadline.weight(.medium))

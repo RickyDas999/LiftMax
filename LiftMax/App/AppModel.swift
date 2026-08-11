@@ -208,6 +208,7 @@ final class AppModel {
         save()
     }
 
+    @discardableResult
     func addExercise(
         dayID: WorkoutDay.ID,
         name: String,
@@ -215,9 +216,9 @@ final class AppModel {
         targetRepRange: ClosedRange<Int>,
         restSeconds: Int,
         targetWorkingSets: Int
-    ) {
+    ) -> Exercise.ID? {
         guard let dayIndex = workoutDays.firstIndex(where: { $0.id == dayID }) else {
-            return
+            return nil
         }
 
         let newExercise = Exercise(
@@ -232,6 +233,7 @@ final class AppModel {
 
         workoutDays[dayIndex].exercises.append(newExercise)
         save()
+        return newExercise.id
     }
 
     func updateExercise(

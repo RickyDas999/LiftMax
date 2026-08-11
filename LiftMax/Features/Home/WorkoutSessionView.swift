@@ -7,6 +7,7 @@ struct WorkoutSessionView: View {
     @State private var showingAddSetSheet = false
     @State private var editingSet: ExerciseSet?
     @State private var showingEditExerciseSheet = false
+    @State private var showingAddExerciseSheet = false
 
     private var session: ActiveWorkoutSession? {
         appModel.activeWorkoutSession
@@ -77,6 +78,14 @@ struct WorkoutSessionView: View {
                         AddExerciseSheet(dayID: day.id, existingExercise: currentExercise)
                             .environment(appModel)
                     }
+                    .sheet(isPresented: $showingAddExerciseSheet) {
+                        AddExerciseSheet(dayID: day.id, existingExercise: nil) { newExerciseID in
+                            if let newIndex = appModel.workoutDay(withID: day.id)?.exercises.firstIndex(where: { $0.id == newExerciseID }) {
+                                appModel.goToExercise(index: newIndex)
+                            }
+                        }
+                        .environment(appModel)
+                    }
                 } else {
                     ContentUnavailableView("No active workout", systemImage: "figure.strengthtraining.traditional")
                 }
@@ -124,6 +133,16 @@ struct WorkoutSessionView: View {
                 Spacer()
 
                 Button {
+                    showingAddExerciseSheet = true
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Add a different exercise")
+
+                Button {
                     showingEditExerciseSheet = true
                 } label: {
                     Image(systemName: "pencil.circle.fill")
@@ -131,7 +150,7 @@ struct WorkoutSessionView: View {
                         .foregroundStyle(.white.opacity(0.7))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Edit or swap exercise")
+                .accessibilityLabel("Edit this exercise")
             }
 
             Text("\(exercise.category.rawValue) • \(exercise.targetRepRange.displayText) reps • Rest \(exercise.restSeconds) sec")

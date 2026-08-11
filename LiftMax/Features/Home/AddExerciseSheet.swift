@@ -6,6 +6,7 @@ struct AddExerciseSheet: View {
 
     let dayID: WorkoutDay.ID
     let existingExercise: Exercise?
+    var onExerciseAdded: ((Exercise.ID) -> Void)? = nil
 
     @State private var name = ""
     @State private var category = ExerciseCategory.chest
@@ -56,7 +57,7 @@ struct AddExerciseSheet: View {
                                 targetWorkingSets: targetWorkingSets
                             )
                         } else {
-                            appModel.addExercise(
+                            let newExerciseID = appModel.addExercise(
                                 dayID: dayID,
                                 name: trimmedName,
                                 category: category,
@@ -64,6 +65,9 @@ struct AddExerciseSheet: View {
                                 restSeconds: restSeconds,
                                 targetWorkingSets: targetWorkingSets
                             )
+                            if let newExerciseID {
+                                onExerciseAdded?(newExerciseID)
+                            }
                         }
                         dismiss()
                     }

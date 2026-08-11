@@ -11,8 +11,8 @@ struct HomeView: View {
                     heroBanner
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 }
-                .listSectionSpacing(0)
 
                 if let saveErrorMessage = appModel.saveErrorMessage {
                     Section {
@@ -21,12 +21,14 @@ struct HomeView: View {
                     }
                 }
 
-                Section("Overview") {
+                Section {
                     statsGrid
                         .padding(.vertical, 6)
+                } header: {
+                    sectionHeader("Overview")
                 }
 
-                Section("Workout Split") {
+                Section {
                     if appModel.workoutDays.isEmpty {
                         ContentUnavailableView(
                             "No workout days yet",
@@ -42,16 +44,21 @@ struct HomeView: View {
                             }
                         }
                     }
+                } header: {
+                    sectionHeader("Workout Split")
                 }
 
                 if !appModel.recentPRs.isEmpty {
-                    Section("Best Current Estimates") {
+                    Section {
                         ForEach(appModel.recentPRs) { exercise in
                             prRow(exercise)
                         }
+                    } header: {
+                        sectionHeader("Best Current Estimates")
                     }
                 }
             }
+            .listStyle(.plain)
             .navigationTitle("LiftMaxx")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -72,7 +79,20 @@ struct HomeView: View {
     }
 
     private var heroBanner: some View {
-        ZStack(alignment: .bottomLeading) {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("LIFTMAXX")
+                .font(.system(size: 42, weight: .black, design: .rounded))
+                .tracking(0.5)
+                .foregroundStyle(.white)
+
+            Text("Progressive overload, minus the messy notes.")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.88))
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 28)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
             LinearGradient(
                 colors: [
                     Color(red: 0.99, green: 0.58, blue: 0.27),
@@ -81,24 +101,14 @@ struct HomeView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
+        )
+    }
 
-            VStack(alignment: .leading, spacing: 10) {
-                Text("LIFTMAXX")
-                    .font(.system(size: 42, weight: .black, design: .rounded))
-                    .tracking(0.5)
-                    .foregroundStyle(.white)
-
-                Text("Progressive overload, minus the messy notes.")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.88))
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 26)
-            .padding(.top, 40)
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: 190)
-        .clipShape(.rect(bottomLeadingRadius: 32, bottomTrailingRadius: 32))
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.title3.weight(.bold))
+            .foregroundStyle(.primary)
+            .textCase(nil)
     }
 
     private var statsGrid: some View {
